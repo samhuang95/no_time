@@ -43,3 +43,10 @@ C:\Users\user\Dropbox\All_Project\no_time\obj\x86\Debug\.winmd_cache\$Microsoft.
 C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\Core\AppxManifest.xml
 C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\Core\no_time.exe
 C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\no_time.build.appxrecipe
+C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\SQLite-net.dll
+C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\SQLitePCLRaw.batteries_v2.dll
+C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\SQLitePCLRaw.core.dll
+C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\e_sqlite3.dll
+C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\SQLitePCLRaw.provider.e_sqlite3.dll
+C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\SQLitePCLRaw.provider.winsqlite3.dll
+C:\Users\user\Dropbox\All_Project\no_time\bin\x86\Debug\System.Runtime.CompilerServices.Unsafe.dll
