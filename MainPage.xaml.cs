@@ -36,6 +36,20 @@ namespace no_time
             string missionTitle = this.missionTitle.Text;
             DateTimeOffset? missionDeadline = this.CalendarDatePicker.Date;
 
+            if (string.IsNullOrWhiteSpace(missionTitle) || missionDeadline == null)
+            {
+                // 如果標題或截止日期未填寫，顯示警告訊息
+                ShowCustomDialog("Failed", "Please enter Mission Title and Deadline.");
+                return;
+            }
+
+            if (missionDeadline.Value.Date < DateTime.Today)
+            {
+                ShowCustomDialog("Failed", "Mission Deadline cannot be earlier than today.");
+                return;
+            }
+
+
             var mission = new Mission
             {
                 // MissionId 會自動遞增，無需手動設置
@@ -49,15 +63,46 @@ namespace no_time
                 UpdateTime = DateTime.Now
             };
 
-            await Task.Run(() =>
-            {
-                using (var db = new SQLiteConnection(dbPath))
-                {
-                    db.Insert(mission);
-                }
-            });
+            await SaveMission(mission);
+
             LoadMissions();
         }
+
+        private async Task SaveMission(Mission mission)
+        {
+            try
+            {
+                await Task.Run(() =>
+                {
+                    using (var db = new SQLiteConnection(dbPath))
+                    {
+                        db.Insert(mission);
+                    }
+                });
+
+                // 顯示成功的提示訊息
+                ShowCustomDialog("Success.", "Mission saved successfully.");
+            }
+            catch (Exception ex)
+            {
+                // 處理錯誤，例如記錄日誌或顯示錯誤訊息
+                Console.WriteLine($"Error saving mission: {ex.Message}");
+                ShowCustomDialog("Failed", "Failed to save mission.");
+            }
+        }
+
+        private async void ShowCustomDialog(string title, string content)
+        {
+            ContentDialog dialog = new ContentDialog()
+            {
+                Title = title,
+                Content = content,
+                PrimaryButtonText = "OK"
+            };
+
+            await dialog.ShowAsync();
+        }
+
 
         private async void LoadMissions()
         {
@@ -65,11 +110,36 @@ namespace no_time
             {
                 using (var db = new SQLiteConnection(dbPath))
                 {
-                    return db.Table<Mission>().ToList();
+                    return db.Table<Mission>()
+                    .Where(m => !m.IsDeleted)
+                    .OrderBy(m => m.MissionDeadline)
+                    .ToList();
                 }
             });
 
             MissionListView.ItemsSource = missions;
+        }
+        private async void CancelButtonClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var missionId = button?.Tag as int?; // 將 Tag 轉換為 int
+
+            if (missionId.HasValue)
+            {
+                await Task.Run(() =>
+                {
+                    using (var db = new SQLiteConnection(dbPath))
+                    {
+                        var mission = db.Table<Mission>().FirstOrDefault(m => m.MissionId == missionId);
+                        if (mission != null)
+                        {
+                            mission.IsDeleted = true;
+                            db.Update(mission);
+                        }
+                    }
+                });
+                LoadMissions();
+            }
         }
 
     }
