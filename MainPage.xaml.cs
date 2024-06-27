@@ -7,6 +7,7 @@ using Windows.UI.Xaml.Controls;
 using SQLite;
 using Windows.Storage;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Data;
 
 namespace no_time
 {
@@ -18,6 +19,7 @@ namespace no_time
         {
             this.InitializeComponent();
             InitializeDatabase();
+            LoadMissions();
         }
 
         private void InitializeDatabase()
@@ -36,14 +38,14 @@ namespace no_time
 
             var mission = new Mission
             {
-                MissionId = Guid.NewGuid().ToString(),
-                UserId = "user_123", // Replace with actual user ID
+                // MissionId 會自動遞增，無需手動設置
+                UserId = 123, // Replace with actual user ID
                 MissionTitle = missionTitle,
                 MissionDeadline = missionDeadline?.DateTime ?? DateTime.Now,
                 IsDeleted = false,
-                CreateId = "user_123", // Replace with actual user ID
+                CreateId = 123, // Replace with actual user ID
                 CreateTime = DateTime.Now,
-                UpdateId = "user_123", // Replace with actual user ID
+                UpdateId = 123, // Replace with actual user ID
                 UpdateTime = DateTime.Now
             };
 
@@ -54,9 +56,10 @@ namespace no_time
                     db.Insert(mission);
                 }
             });
+            LoadMissions();
         }
 
-        private async void loadButtonClick(object sender, RoutedEventArgs e)
+        private async void LoadMissions()
         {
             List<Mission> missions = await Task.Run(() =>
             {
@@ -68,20 +71,40 @@ namespace no_time
 
             MissionListView.ItemsSource = missions;
         }
+
     }
+
 
     public class Mission
     {
         [PrimaryKey, AutoIncrement]
-        public int Id { get; set; }
-        public string MissionId { get; set; }
-        public string UserId { get; set; }
+        public int MissionId { get; set; }
+        public int UserId { get; set; }
         public string MissionTitle { get; set; }
         public DateTime MissionDeadline { get; set; }
         public bool IsDeleted { get; set; }
-        public string CreateId { get; set; }
+        public int CreateId { get; set; }
         public DateTime CreateTime { get; set; }
-        public string UpdateId { get; set; }
+        public int UpdateId { get; set; }
         public DateTime UpdateTime { get; set; }
+
+    }
+
+    public class DaysLeftConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is DateTime deadline)
+            {
+                var daysLeft = (deadline - DateTime.Now).Days;
+                return $"{daysLeft} 天";
+            }
+            return "N/A";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
