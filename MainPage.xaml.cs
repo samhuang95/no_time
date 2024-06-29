@@ -22,14 +22,46 @@ namespace no_time
             LoadMissions();
         }
 
+        // This db setting is store to local.
+        //private void InitializeDatabase()
+        //{
+        //    dbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "missions.db");
+        //    using (var db = new SQLiteConnection(dbPath))
+        //    {
+        //        db.CreateTable<Mission>();
+        //    }
+        //}
+
+        // This DB setting is store to current project folder.
         private void InitializeDatabase()
         {
-            dbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "missions.db");
-            using (var db = new SQLiteConnection(dbPath))
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string dbFolder = Path.Combine(baseDirectory, "db");
+
+            // 如果資料夾不存在，則建立資料夾
+            if (!Directory.Exists(dbFolder))
             {
-                db.CreateTable<Mission>();
+                Directory.CreateDirectory(dbFolder);
             }
+
+            dbPath = Path.Combine(dbFolder, "missions.db");
+
+            // 檢查資料庫檔案是否存在，如果不存在則創建
+            if (!File.Exists(dbPath))
+            {
+                SQLiteConnection.CreateFile(dbPath);
+
+                using (var db = new SQLiteConnection(dbPath))
+                {
+                    db.CreateTable<Mission>();
+                }
+            }
+
+            // 將 dbPath 賦值給全局變量
+            this.dbPath = dbPath;
         }
+
+
 
         private async void saveButtonClick(object sender, RoutedEventArgs e)
         {
